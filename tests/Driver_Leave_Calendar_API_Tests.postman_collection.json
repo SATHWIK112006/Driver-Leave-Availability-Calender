@@ -1,0 +1,166 @@
+{
+	"info": {
+		"_postman_id": "8c593a11-b0db-44a3-ba21-1b96d9ccdb2d",
+		"name": "Driver Leave & Availability Calendar - API Tests",
+		"description": "Postman Collection containing endpoint verification tests for the Review 2 MVP API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"health"
+					]
+				},
+				"description": "Verifies that the Express API server is active and running."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Staff Drivers List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/staff_members",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"staff_members"
+					]
+				},
+				"description": "Retrieves the list of active drivers to populate the frontend selection dropdown."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Leave Logs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/driver_leave_availability",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"driver_leave_availability"
+					]
+				},
+				"description": "Retrieves all logged leave requests sorted by creation date (newest first) for the dashboard."
+			},
+			"response": []
+		},
+		{
+			"name": "Log Valid Leave Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Drivers\": \"Valluri Spoorthi\",\n    \"planned\": \"2026-06-20T08:00:00.000Z\",\n    \"leaves\": \"2026-06-25T17:00:00.000Z\",\n    \"unavailability\": \"Medical Leave\",\n    \"admin\": \"Assigned to backup driver for corporate run.\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/driver_leave_availability",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"driver_leave_availability"
+					]
+				},
+				"description": "Submits a valid leave request matching the database schema and active drivers registry."
+			},
+			"response": []
+		},
+		{
+			"name": "Log Invalid Leave Request (Dates Overlap)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Drivers\": \"Valluri Spoorthi\",\n    \"planned\": \"2026-06-26T10:00:00.000Z\",\n    \"leaves\": \"2026-06-22T08:00:00.000Z\",\n    \"unavailability\": \"Personal Leave\",\n    \"admin\": \"Should trigger a date validation mismatch.\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/driver_leave_availability",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"driver_leave_availability"
+					]
+				},
+				"description": "Tries to submit a request where the start date is after the end date. Express validation should reject with HTTP 400."
+			},
+			"response": []
+		},
+		{
+			"name": "Log Invalid Leave Request (Driver Not Found)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Drivers\": \"Unknown Driver Name\",\n    \"planned\": \"2026-06-20T08:00:00.000Z\",\n    \"leaves\": \"2026-06-25T17:00:00.000Z\",\n    \"unavailability\": \"Vacation\",\n    \"admin\": \"Should fail due to foreign key/registration check.\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/driver_leave_availability",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"driver_leave_availability"
+					]
+				},
+				"description": "Tries to submit a request for an unregistered driver. DB validation should reject with HTTP 400."
+			},
+			"response": []
+		}
+	]
+}
